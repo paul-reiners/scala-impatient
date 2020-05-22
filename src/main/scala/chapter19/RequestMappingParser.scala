@@ -12,14 +12,14 @@ class RequestMappingParser extends RegexParsers {
 
 object RequestMappingParser {
   def main(args: Array[String]): Unit = {
-    val result = parseAll
+    val result = parseAll("""@RequestMapping(value = "/ex/foos", method = RequestMethod.GET)""")
     if (result.successful) println(result.get)
   }
 
-  private def parseAll = {
+  def parseAll(requestMappingStr: String) = {
     val parser = new RequestMappingParser
     val result =
-      parser.parseAll(parser.requestMapping, """@RequestMapping(value = "/ex/foos", method = RequestMethod.GET)""")
+      parser.parseAll(parser.requestMapping, requestMappingStr)
     result
   }
 }
