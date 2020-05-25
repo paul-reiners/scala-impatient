@@ -9,7 +9,9 @@ class ExprParser extends RegexParsers {
   def expr: Parser[Any] = term ~ rep("+" ~ term | "-" ~ term)
   def term: Parser[Any] = pow ~ rep("*" ~ pow | "/" ~ pow)
   def pow: Parser[Any] = rep(factor~"^")~factor
-  def factor: Parser[Any] = number | "(" ~ expr ~ ")"
+  def factor: Parser[Any] = number ^^ {_.toInt} | "(" ~ expr ~ ")" ^^ {
+    case _ ~ e ~ _ => e
+  }
 }
 
 object ExprParser {
