@@ -6,19 +6,10 @@ import scala.util.parsing.combinator.RegexParsers
 class ExprParser extends RegexParsers {
   val number: Regex = "[0-9]+".r
 
-  def expr: Parser[Int] = term ~ opt(("+" | "-") ~ expr) ^^ {
-    case t ~ None => t
-    case t ~ Some("+" ~ e) => t + e
-    case t ~ Some("-" ~ e) => t - e
-  }
-
-  def term: Parser[Int] = factor ~ rep("*" ~ factor) ^^ {
-    case f ~ r => f * r.map(_._2).product
-  }
-
-  def factor: Parser[Int] = number ^^ { _.toInt } | "(" ~ expr ~ ")" ^^ {
-    case _ ~ e ~ _ => e
-  }
+  def expr: Parser[Any] = term ~ rep("+" ~ term | "-" ~ term)
+  def term: Parser[Any] = pow ~ rep("*" ~ pow | "/" ~ pow)
+  def pow: Parser[Any] = rep(factor~"^")~factor
+  def factor: Parser[Any] = number | "(" ~ expr ~ ")"
 }
 
 object ExprParser {
@@ -26,7 +17,10 @@ object ExprParser {
     val parser = new ExprParser
     val result = parser.parseAll(parser.expr, "3-4+5")
     if (result.successful) println(result.get)
-    val resultDivision = parser.parseAll(parser.expr, "(3-4+5) * 2")
-    if (resultDivision.successful) println(resultDivision.get)
+    val resultMultiplication = parser.parseAll(parser.expr, "(3-4+5) * 2")
+    if (resultMultiplication.successful) println(resultMultiplication.get)
+
+    val powResult = parser.parseAll(parser.expr, "4^2^3")
+    if (powResult.successful) println(powResult.get)
   }
 }
